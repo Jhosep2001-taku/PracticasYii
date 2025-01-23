@@ -14,8 +14,8 @@ import {
   IconButton, // Importar IconButton
 } from '@mui/material';
 import { Link } from 'react-router-dom';
-import EditIcon from '@mui/icons-material/Edit'; // Icono de editar
-import DeleteIcon from '@mui/icons-material/Delete'; // Icono de eliminar
+import EditIcon from '@mui/icons-material/Edit'; 
+import DeleteIcon from '@mui/icons-material/Delete'; 
 
 const RolList = () => {
   
@@ -24,17 +24,17 @@ const RolList = () => {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    // Llamar a la función que obtiene los roles
+   
     getRoles()
       .then((data) => {
-        setRoles(data); // Guardar los roles en el estado
-        setLoading(false); // Finalizar la carga
+        setRoles(data); 
+        setLoading(false); 
       })
       .catch((error) => {
         setError('Error al obtener los roles');
-        setLoading(false); // Finalizar la carga incluso si hay un error
+        setLoading(false); 
       });
-  }, []); // El array vacío [] asegura que se ejecute solo una vez al cargar el componente
+  }, []); 
 
   if (loading) {
     return (

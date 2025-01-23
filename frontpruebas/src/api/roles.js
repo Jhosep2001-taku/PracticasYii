@@ -1,13 +1,12 @@
 import axios from 'axios';
 
-// Obtener todos los roles
 export const getRoles = async () => {
     try {
         const response = await axios.get(`${process.env.REACT_APP_API_URL}/roles`);
         return response.data;
     } catch (error) {
         console.error('Error al obtener los roles:', error);
-        throw error; // Propaga el error para que pueda ser manejado en el componente
+        throw error; 
     }
 };
 

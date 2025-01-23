@@ -37,7 +37,7 @@ const UsuarioList = () => {
         console.error('Error al obtener los usuarios o roles:', error);
         setError('No se pudieron cargar los usuarios o roles. Por favor, intenta de nuevo más tarde.');
       } finally {
-        setLoading(false); // Finalizar la carga
+        setLoading(false); 
       }
     };
 

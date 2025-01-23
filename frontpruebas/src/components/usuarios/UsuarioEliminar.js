@@ -6,18 +6,18 @@ const UsuarioEliminar = () => {
     const [usuario, setUsuario] = useState(null);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
-    const [roles, setRoles] = useState([]);  // Estado para los roles
-    const { id } = useParams(); // Obtenemos el id del usuario de la URL
+    const [roles, setRoles] = useState([]);  
+    const { id } = useParams(); 
     const navigate = useNavigate();
 
-    const API_URL = process.env.REACT_APP_API_URL; // Usamos la URL de la API desde el .env
+    const API_URL = process.env.REACT_APP_API_URL; 
 
     // Obtener los detalles del usuario
     useEffect(() => {
         const fetchUsuario = async () => {
             try {
                 const response = await axios.get(`${API_URL}/usuarios/${id}`);
-                setUsuario(response.data); // Cargamos los datos del usuario
+                setUsuario(response.data); 
                 setLoading(false);
             } catch (error) {
                 console.error('Error al obtener el usuario:', error);
@@ -29,7 +29,7 @@ const UsuarioEliminar = () => {
         const fetchRoles = async () => {
             try {
                 const response = await axios.get(`${API_URL}/roles`);  // Asegúrate de que esta URL devuelva los roles
-                setRoles(response.data);  // Guardamos los roles
+                setRoles(response.data); 
             } catch (error) {
                 console.error('Error al obtener los roles:', error);
             }

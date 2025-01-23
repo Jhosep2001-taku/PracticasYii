@@ -1,13 +1,12 @@
 import axios from 'axios';
 
-// Obtener todos los usuarios
 export const getUsuarios = async () => {
     try {
         const response = await axios.get(`${process.env.REACT_APP_API_URL}/usuarios`);  // URL desde el .env
-        return response.data;  // Axios ya devuelve el JSON parseado
+        return response.data;  
     } catch (error) {
         console.error('Error al obtener los usuarios:', error);
-        throw error; // Propaga el error para que pueda ser manejado en el componente
+        throw error; 
     }
 };
 

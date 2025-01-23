@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { createUsuario } from '../../api/usuarios';
 import axios from 'axios';
-// Definir la URL de la API de roles
+
 export const API_ROLES_URL = `${process.env.REACT_APP_API_URL}/roles`; // Suponiendo que usas una URL base del .env
 
 
@@ -13,12 +13,12 @@ const UsuarioCrear = () => {
     const [roles, setRoles] = useState([]);
     const [loading, setLoading] = useState(true);
 
-    // Obtener los roles disponibles
+
     useEffect(() => {
         const fetchRoles = async () => {
             try {
                 const response = await axios.get(API_ROLES_URL);
-                setRoles(response.data);  // Guardamos los roles en el estado
+                setRoles(response.data);  
                 setLoading(false);
             } catch (error) {
                 console.error('Error al obtener los roles:', error);
@@ -41,7 +41,7 @@ const UsuarioCrear = () => {
         try {
             const nuevoUsuario = await createUsuario(usuarioData);
             console.log('Usuario creado:', nuevoUsuario);
-            // Puedes agregar una lógica para redirigir al usuario o mostrar un mensaje de éxito.
+          
         } catch (error) {
             console.error('Error al crear el usuario:', error);
         }
@@ -61,7 +61,7 @@ const UsuarioCrear = () => {
                             value={nombre}
                             onChange={(e) => setNombre(e.target.value)}
                             required
-                            autoComplete="off"  // Desactivar autocompletar
+                            autoComplete="off"  
                         />
                     </label>
                     <label>
@@ -71,7 +71,7 @@ const UsuarioCrear = () => {
                             value={email}
                             onChange={(e) => setEmail(e.target.value)}
                             required
-                            autoComplete="off"  // Desactivar autocompletar
+                            autoComplete="off"  
                         />
                     </label>
                     <label>
@@ -81,7 +81,7 @@ const UsuarioCrear = () => {
                             value={password}
                             onChange={(e) => setPassword(e.target.value)}
                             required
-                            autoComplete="new-password"  // Desactivar autocompletar de la contraseña
+                            autoComplete="new-password"  
                         />
                     </label>
                     <label>

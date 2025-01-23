@@ -7,19 +7,12 @@ $config = [
     'id' => 'basic',
     'basePath' => dirname(__DIR__),
     'bootstrap' => ['log'],
-    'aliases' => [
-        '@bower' => '@vendor/bower-asset',
-        '@npm'   => '@vendor/npm-asset',
-    ],
     'components' => [
-       'request' => [
-            'cookieValidationKey' => 'SPtrCocextsVegt7YeLgPmzi64l4oXec',
+        'request' => [
+            'cookieValidationKey' => 'tu-clave-de-validacion-aqui',
             'parsers' => [
                 'application/json' => 'yii\web\JsonParser',
             ],
-            'enableCsrfValidation' => false,
-            'enableCookieValidation' => false,
-            'enableCsrfCookie' => false,
         ],
         'cache' => [
             'class' => 'yii\caching\FileCache',
@@ -32,10 +25,8 @@ $config = [
             'errorAction' => 'site/error',
         ],
         'mailer' => [
-            'class' => \yii\symfonymailer\Mailer::class,
-            'viewPath' => '@app/mail',
-            // send all mails to a file by default.
-            'useFileTransport' => true,
+            'class' => 'yii\swiftmailer\Mailer',
+            // Configura el transporte si deseas enviar correos
         ],
         'log' => [
             'traceLevel' => YII_DEBUG ? 3 : 0,
@@ -47,23 +38,10 @@ $config = [
             ],
         ],
         'db' => $db,
-       'urlManager' => [
+        'urlManager' => [
             'enablePrettyUrl' => true,
             'showScriptName' => false,
-            'enableStrictParsing' => true,
             'rules' => [
-                [
-                    'class' => 'yii\rest\UrlRule',
-                    'controller' => 'api/usuarios',
-                    'pluralize' => false,
-                    'patterns' => [
-                        'POST' => 'create',
-                        'GET' => 'index',
-                        'GET {id}' => 'view',
-                        'PUT,PATCH {id}' => 'update',
-                        'DELETE {id}' => 'delete',
-                    ],
-                ],
                 [
                     'class' => 'yii\rest\UrlRule',
                     'controller' => 'api/roles',
@@ -74,29 +52,53 @@ $config = [
                         'GET {id}' => 'view',
                         'PUT,PATCH {id}' => 'update',
                         'DELETE {id}' => 'delete',
+                        'OPTIONS {id}' => 'options',
+                        'OPTIONS' => 'options',
+                    ],
+                ],
+                [
+                    'class' => 'yii\rest\UrlRule',
+                    'controller' => 'api/usuarios',
+                    'pluralize' => false,
+                    'patterns' => [
+                        'POST' => 'create',
+                        'GET' => 'index',
+                        'GET {id}' => 'view',
+                        'PUT,PATCH {id}' => 'update',
+                        'DELETE {id}' => 'delete',
+                        'OPTIONS {id}' => 'options',
+                        'OPTIONS' => 'options',
                     ],
                 ],
             ],
+        ],
+        'response' => [
+            'class' => 'yii\web\Response',
+            'format' => yii\web\Response::FORMAT_JSON,
+            'on beforeSend' => function ($event) {
+                $response = $event->sender;
+                $response->headers->set('Access-Control-Allow-Origin', 'http://localhost:3000'); // Cambia al origen que uses en producción
+                $response->headers->set('Access-Control-Allow-Credentials', 'true');
+                $response->headers->set('Access-Control-Allow-Methods', 'GET, POST, PUT, PATCH, DELETE, OPTIONS');
+                $response->headers->set('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content-Type, Accept, Authorization');
+            },
         ],
     ],
     'params' => $params,
 ];
 
 if (YII_ENV_DEV) {
-    // configuration adjustments for 'dev' environment
+    // Configuración adicional para entornos de desarrollo
     $config['bootstrap'][] = 'debug';
     $config['modules']['debug'] = [
         'class' => 'yii\debug\Module',
-        // uncomment the following to add your IP if you are not connecting from localhost.
-        //'allowedIPs' => ['127.0.0.1', '::1'],
     ];
 
     $config['bootstrap'][] = 'gii';
     $config['modules']['gii'] = [
         'class' => 'yii\gii\Module',
-        // uncomment the following to add your IP if you are not connecting from localhost.
-        //'allowedIPs' => ['127.0.0.1', '::1'],
     ];
 }
 
 return $config;
+

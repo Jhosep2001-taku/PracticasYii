@@ -17,13 +17,13 @@ class Usuarios extends ActiveRecord
     public function rules()
     {
         return [
-            [['nombre', 'email', 'password'], 'required'], // Campos obligatorios
+            [['nombre', 'email', 'password', 'id_rol'], 'required'], // Campos obligatorios
             [['email'], 'email'], // Validar formato de email
             [['email'], 'unique'], // Email único
             [['nombre'], 'string', 'max' => 100], // Longitud máxima del nombre
             [['password'], 'string', 'max' => 255], // Longitud máxima de la contraseña
-            [['rol'], 'string', 'max' => 50], // Longitud máxima del rol
             [['id_rol'], 'integer'], // Validar que id_rol sea un número entero
+            [['fecha_creacion'], 'safe'], // El campo 'fecha_creacion' es seguro para asignación masiva
         ];
     }
 
@@ -35,7 +35,7 @@ class Usuarios extends ActiveRecord
             'nombre' => 'Nombre',
             'email' => 'Email',
             'password' => 'Contraseña',
-            'rol' => 'Rol',
+            'id_rol' => 'Rol', 
             'fecha_creacion' => 'Fecha de Creación',
         ];
     }
@@ -47,17 +47,23 @@ class Usuarios extends ActiveRecord
             'id',
             'nombre',
             'email',
-            'rol',
+            'id_rol',
             'fecha_creacion',
         ];
     }
 
-    // Si necesitas contraseñas encriptadas, puedes hacerlo aquí
+    // Encripta la contraseña antes de guardarla
     public function beforeSave($insert)
     {
-        if ($this->isNewRecord) {
+        if ($this->isNewRecord && !empty($this->password)) {
             $this->password = Yii::$app->getSecurity()->generatePasswordHash($this->password);
         }
         return parent::beforeSave($insert);
+    }
+
+    // Relación con el modelo 'Roles' (ahora usando 'id_rol')
+    public function getRol()
+    {
+        return $this->hasOne(Roles::class, ['id' => 'id_rol']);
     }
 }

@@ -5,44 +5,38 @@ namespace app\controllers\api;
 use Yii;
 use yii\rest\ActiveController;
 use app\models\Usuarios;
-use yii\web\Response;
 
 class UsuariosController extends ActiveController
 {
-    public $modelClass = 'app\models\Usuarios';
-    public $enableCsrfValidation = false; // Deshabilitar CSRF para la API
+    public $modelClass = 'app\models\Usuarios'; // Especificamos el modelo asociado
 
     public function behaviors()
     {
         $behaviors = parent::behaviors();
+
+        // Configuración del Content Negotiator para respuestas JSON
         $behaviors['contentNegotiator'] = [
             'class' => \yii\filters\ContentNegotiator::class,
             'formats' => [
-                'application/json' => Response::FORMAT_JSON,
+                'application/json' => \yii\web\Response::FORMAT_JSON,
             ],
         ];
-        
+
+        // Habilitar CORS
+        $behaviors['corsFilter'] = [
+            'class' => \yii\filters\Cors::class,
+            'cors' => [
+                'Origin' => ['http://localhost:3000'], // Permitir solicitudes desde este origen
+                'Access-Control-Request-Method' => ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
+                'Access-Control-Request-Headers' => ['*'],
+                'Access-Control-Allow-Credentials' => true,
+                'Access-Control-Max-Age' => 86400,
+                'Access-Control-Expose-Headers' => ['Authorization'],
+            ],
+        ];
+
         return $behaviors;
     }
-    public function actionCreate()
-    {
-        $model = new Usuarios();
-        $data = Yii::$app->request->getBodyParams();
+
     
-        // Asignar manualmente los valores al modelo
-        $model->nombre = $data['nombre'] ?? null;
-        $model->email = $data['email'] ?? null;
-        $model->password = $data['password'] ?? null;
-        $model->rol = $data['rol'] ?? null;
-        $model->id_rol = $data['id_rol'] ?? null; 
-    
-        if ($model->save()) {
-            Yii::$app->response->format = Response::FORMAT_JSON;
-            return ['status' => 'success', 'data' => $model];
-        } else {
-            Yii::$app->response->statusCode = 422;
-            Yii::$app->response->format = Response::FORMAT_JSON;
-            return ['status' => 'error', 'errors' => $model->errors];
-        }
-    }
 }

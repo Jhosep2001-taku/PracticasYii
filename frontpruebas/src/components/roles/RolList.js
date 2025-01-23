@@ -18,11 +18,9 @@ import EditIcon from '@mui/icons-material/Edit'; // Icono de editar
 import DeleteIcon from '@mui/icons-material/Delete'; // Icono de eliminar
 
 const RolList = () => {
-  // Estado para almacenar los roles
+  
   const [roles, setRoles] = useState([]);
-  // Estado para manejar los errores
   const [error, setError] = useState(null);
-  // Estado para manejar la carga
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {

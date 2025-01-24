@@ -84,7 +84,7 @@ const UsuarioList = () => {
           color="primary"
           startIcon={<AddIcon />}
           component={Link}
-          to="/usuarios/nuevo"
+          to="/usuarios/crear"
         >
           Nuevo Usuario
         </Button>

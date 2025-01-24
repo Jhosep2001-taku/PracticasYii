@@ -5,25 +5,22 @@ import { Link } from 'react-router-dom';
 import {
   Container,
   Typography,
-  Paper,
   Button,
   Grid,
-  Card,
-  CardContent,
-  CardActions,
-  CircularProgress,
   Box,
-  IconButton,
+  CircularProgress,
 } from '@mui/material';
-import EditIcon from '@mui/icons-material/Edit';
-import DeleteIcon from '@mui/icons-material/Delete';
-
+import AddIcon from '@mui/icons-material/Add';
+import UserCard from '../common/UserCard'; 
+import ConfirmDialog from '../common/ConfirmDialog'; 
 
 const UsuarioList = () => {
   const [usuarios, setUsuarios] = useState([]);
   const [roles, setRoles] = useState([]);
   const [error, setError] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
+  const [selectedUsuarioId, setSelectedUsuarioId] = useState(null);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -37,16 +34,27 @@ const UsuarioList = () => {
         console.error('Error al obtener los usuarios o roles:', error);
         setError('No se pudieron cargar los usuarios o roles. Por favor, intenta de nuevo más tarde.');
       } finally {
-        setLoading(false); 
+        setLoading(false);
       }
     };
 
     fetchData();
   }, []);
 
-  const getRoleName = (id_rol) => {
-    const rol = roles.find((role) => role.id === id_rol);
-    return rol ? rol.nombre : 'Sin rol asignado';
+  const handleDeleteClick = (id) => {
+    setSelectedUsuarioId(id);
+    setDeleteDialogOpen(true);
+  };
+
+  const handleDeleteConfirm = () => {
+    // Aquí iría la lógica para eliminar el usuario
+    console.log('Eliminar usuario con ID:', selectedUsuarioId);
+    setDeleteDialogOpen(false);
+  };
+
+  const handleDeleteCancel = () => {
+    setDeleteDialogOpen(false);
+    setSelectedUsuarioId(null);
   };
 
   if (loading) {
@@ -67,57 +75,44 @@ const UsuarioList = () => {
 
   return (
     <Container>
-      {/* Título y botón para crear un nuevo usuario */}
       <Box display="flex" justifyContent="space-between" alignItems="center" marginBottom="20px">
         <Typography variant="h4" gutterBottom>
           Lista de Usuarios
         </Typography>
-
+        <Button
+          variant="contained"
+          color="primary"
+          startIcon={<AddIcon />}
+          component={Link}
+          to="/usuarios/nuevo"
+        >
+          Nuevo Usuario
+        </Button>
       </Box>
 
-      {/* Lista de usuarios */}
       {usuarios.length === 0 ? (
         <Typography variant="body1">No hay usuarios disponibles.</Typography>
       ) : (
         <Grid container spacing={3}>
           {usuarios.map((usuario) => (
             <Grid item key={usuario.id} xs={12} sm={6} md={4}>
-              <Card>
-                <CardContent>
-                  <Typography variant="h5" component="div">
-                    {usuario.nombre}
-                  </Typography>
-                  <Typography variant="body2" color="text.secondary">
-                    <strong>Email:</strong> {usuario.email}
-                  </Typography>
-                  <Typography variant="body2" color="text.secondary">
-                    <strong>Rol:</strong> {getRoleName(usuario.id_rol)}
-                  </Typography>
-                  <Typography variant="body2" color="text.secondary">
-                    <strong>Fecha de Creación:</strong> {usuario.fecha_creacion}
-                  </Typography>
-                </CardContent>
-                <CardActions>
-                  <IconButton
-                    component={Link}
-                    to={`/usuarios/editar/${usuario.id}`}
-                    color="primary"
-                  >
-                    <EditIcon />
-                  </IconButton>
-                  <IconButton
-                    component={Link}
-                    to={`/usuarios/eliminar/${usuario.id}`}
-                    color="secondary"
-                  >
-                    <DeleteIcon />
-                  </IconButton>
-                </CardActions>
-              </Card>
+              <UserCard
+                usuario={usuario}
+                roles={roles}
+                onDeleteClick={handleDeleteClick}
+              />
             </Grid>
           ))}
         </Grid>
       )}
+
+      <ConfirmDialog
+        open={deleteDialogOpen}
+        onClose={handleDeleteCancel}
+        onConfirm={handleDeleteConfirm}
+        title="Eliminar Usuario"
+        description="¿Estás seguro de que deseas eliminar este usuario? Esta acción no se puede deshacer."
+      />
     </Container>
   );
 };

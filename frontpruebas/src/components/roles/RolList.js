@@ -1,6 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { getRoles, deleteRol } from '../../api/roles';
-import { Link, useNavigate } from 'react-router-dom';
+import { getRoles, createRol, updateRol, deleteRol } from '../../api/roles';
 import {
   Container,
   Typography,
@@ -11,7 +10,10 @@ import {
 } from '@mui/material';
 import AddIcon from '@mui/icons-material/Add';
 import ConfirmDialog from '../common/ConfirmDialog';
-import RoleCard from '../common/RoleCard'; 
+import RoleCard from '../common/RoleCard';
+import Modal from '../common/Modal'; 
+import RolCrear from './RolCrear';
+import RolEditar from './RolEditar'; 
 
 const RolList = () => {
   const [roles, setRoles] = useState([]);
@@ -19,7 +21,8 @@ const RolList = () => {
   const [loading, setLoading] = useState(true);
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [selectedRole, setSelectedRole] = useState(null);
-  const navigate = useNavigate();
+  const [modalOpen, setModalOpen] = useState(false); 
+  const [modalType, setModalType] = useState(null); 
 
   // Obtener la lista de roles
   useEffect(() => {
@@ -39,8 +42,17 @@ const RolList = () => {
   }, []);
 
   // Manejar la edición de un rol
-  const handleEditClick = (id) => {
-    navigate(`/roles/editar/${id}`);
+  const handleEditClick = (role) => {
+    setSelectedRole(role);
+    setModalType('edit');
+    setModalOpen(true);
+  };
+
+  // Manejar la creación de un rol
+  const handleCreateClick = () => {
+    setSelectedRole(null);
+    setModalType('create');
+    setModalOpen(true);
   };
 
   // Manejar la eliminación de un rol
@@ -67,7 +79,35 @@ const RolList = () => {
     setSelectedRole(null);
   };
 
-  // Mostrar un spinner mientras se cargan los datos
+  // Cerrar el modal
+  const handleModalClose = () => {
+    setModalOpen(false);
+    setSelectedRole(null);
+  };
+
+  // Manejar el envío del formulario (crear o editar)
+  const handleFormSubmit = async (rolData) => {
+    try {
+      if (modalType === 'create') {
+       
+        const nuevoRol = await createRol(rolData); 
+       
+        const rolesData = await getRoles();
+        setRoles(rolesData);
+      } else if (modalType === 'edit') {
+ 
+        await updateRol(selectedRole.id, rolData); 
+        
+        const rolesData = await getRoles();
+        setRoles(rolesData);
+      }
+      setModalOpen(false); 
+    } catch (error) {
+      console.error('Error al guardar el rol:', error);
+      setError('Hubo un problema al guardar el rol.');
+    }
+  };
+
   if (loading) {
     return (
       <Box display="flex" justifyContent="center" alignItems="center" minHeight="200px">
@@ -76,7 +116,7 @@ const RolList = () => {
     );
   }
 
-  // Mostrar un mensaje de error si ocurre un problema
+ 
   if (error) {
     return (
       <Typography variant="h6" color="error" align="center">
@@ -92,12 +132,10 @@ const RolList = () => {
           Lista de Roles
         </Typography>
         <Button
-          component={Link}
-          to="/roles/crear"
           variant="contained"
           color="primary"
           startIcon={<AddIcon />}
-          sx={{ borderRadius: '20px' }}
+          onClick={handleCreateClick} 
         >
           Crear Rol
         </Button>
@@ -115,6 +153,21 @@ const RolList = () => {
           </Grid>
         ))}
       </Grid>
+
+      {/* Modal para crear/editar roles */}
+      <Modal
+        open={modalOpen}
+        onClose={handleModalClose}
+        title={modalType === 'create' ? 'Crear Rol' : 'Editar Rol'}
+        onConfirm={handleFormSubmit}
+        confirmText={modalType === 'create' ? 'Crear' : 'Guardar'}
+      >
+        {modalType === 'create' ? (
+          <RolCrear onSubmit={handleFormSubmit} />
+        ) : (
+          <RolEditar rol={selectedRole} onSubmit={handleFormSubmit} />
+        )}
+      </Modal>
 
       {/* Diálogo de confirmación para eliminar un rol */}
       <ConfirmDialog

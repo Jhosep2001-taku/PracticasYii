@@ -1,7 +1,4 @@
-import React, { useEffect, useState } from 'react';
-import { getUsuarios } from '../../api/usuarios';
-import { getRoles } from '../../api/roles';
-import { Link } from 'react-router-dom';
+import React, { useState, useEffect } from 'react';
 import {
   Container,
   Typography,
@@ -11,8 +8,13 @@ import {
   CircularProgress,
 } from '@mui/material';
 import AddIcon from '@mui/icons-material/Add';
-import UserCard from '../common/UserCard'; 
-import ConfirmDialog from '../common/ConfirmDialog'; 
+import UserCard from '../common/UserCard';
+import ConfirmDialog from '../common/ConfirmDialog';
+import Modal from '../common/Modal';
+import UsuarioCrear from './UsuarioCrear';
+import UsuarioEditar from './UsuarioEditar';
+import { getUsuarios, createUsuario, updateUsuario, deleteUsuario } from '../../api/usuarios';
+import { getRoles } from '../../api/roles';
 
 const UsuarioList = () => {
   const [usuarios, setUsuarios] = useState([]);
@@ -21,14 +23,16 @@ const UsuarioList = () => {
   const [loading, setLoading] = useState(true);
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [selectedUsuarioId, setSelectedUsuarioId] = useState(null);
+  const [modalOpen, setModalOpen] = useState(false);
+  const [modalType, setModalType] = useState(null);
+  const [selectedUsuario, setSelectedUsuario] = useState(null);
 
   useEffect(() => {
     const fetchData = async () => {
       try {
         const usuariosData = await getUsuarios();
-        setUsuarios(usuariosData);
-
         const rolesData = await getRoles();
+        setUsuarios(usuariosData);
         setRoles(rolesData);
       } catch (error) {
         console.error('Error al obtener los usuarios o roles:', error);
@@ -46,15 +50,71 @@ const UsuarioList = () => {
     setDeleteDialogOpen(true);
   };
 
-  const handleDeleteConfirm = () => {
-    // Aquí iría la lógica para eliminar el usuario
-    console.log('Eliminar usuario con ID:', selectedUsuarioId);
-    setDeleteDialogOpen(false);
+  const handleDeleteConfirm = async () => {
+    try {
+      await deleteUsuario(selectedUsuarioId);
+      setUsuarios(usuarios.filter((usuario) => usuario.id !== selectedUsuarioId));
+      setDeleteDialogOpen(false);
+    } catch (error) {
+      console.error('Error al eliminar el usuario:', error);
+      setError('Hubo un problema al eliminar el usuario.');
+    }
   };
 
   const handleDeleteCancel = () => {
     setDeleteDialogOpen(false);
     setSelectedUsuarioId(null);
+  };
+
+  const handleCreateClick = () => {
+    setModalType('create');
+    setSelectedUsuario(null);
+    setModalOpen(true);
+  };
+
+  const handleEditClick = (usuario) => {
+    setModalType('edit');
+    setSelectedUsuario(usuario);
+    setModalOpen(true);
+  };
+
+  const handleModalClose = () => {
+    setModalOpen(false);
+    setSelectedUsuario(null);
+  };
+
+  const handleFormSubmit = async (usuarioData) => {
+    try {
+      if (modalType === 'create') {
+        const nuevoUsuario = await createUsuario(usuarioData);
+        setUsuarios([...usuarios, nuevoUsuario]); // Agregar el nuevo usuario al estado
+      } else if (modalType === 'edit') {
+        const usuarioActualizado = await updateUsuario(selectedUsuario.id, usuarioData);
+        setUsuarios(
+          usuarios.map((usuario) =>
+            usuario.id === usuarioActualizado.id ? usuarioActualizado : usuario
+          )
+        ); // Actualizar el usuario en el estado
+      }
+      setModalOpen(false); // Cerrar el modal después de guardar
+    } catch (error) {
+      console.error('Error al guardar el usuario:', error);
+      if (error.response && error.response.data) {
+        const { data } = error.response;
+        if (data.details && Array.isArray(data.details)) {
+          const errorMessages = data.details.map(
+            (detail) => `${detail.field}: ${detail.message}`
+          );
+          setError(errorMessages.join(', '));
+        } else if (data.message) {
+          setError(data.message);
+        } else {
+          setError('Hubo un problema al guardar el usuario.');
+        }
+      } else {
+        setError('Hubo un problema al guardar el usuario.');
+      }
+    }
   };
 
   if (loading) {
@@ -83,8 +143,7 @@ const UsuarioList = () => {
           variant="contained"
           color="primary"
           startIcon={<AddIcon />}
-          component={Link}
-          to="/usuarios/crear"
+          onClick={handleCreateClick}
         >
           Nuevo Usuario
         </Button>
@@ -100,11 +159,24 @@ const UsuarioList = () => {
                 usuario={usuario}
                 roles={roles}
                 onDeleteClick={handleDeleteClick}
+                onEditClick={handleEditClick}
               />
             </Grid>
           ))}
         </Grid>
       )}
+
+      <Modal
+        open={modalOpen}
+        onClose={handleModalClose}
+        title={modalType === 'create' ? 'Crear Usuario' : 'Editar Usuario'}
+      >
+        {modalType === 'create' ? (
+          <UsuarioCrear roles={roles} onSubmit={handleFormSubmit} />
+        ) : (
+          <UsuarioEditar usuario={selectedUsuario} roles={roles} onSubmit={handleFormSubmit} />
+        )}
+      </Modal>
 
       <ConfirmDialog
         open={deleteDialogOpen}

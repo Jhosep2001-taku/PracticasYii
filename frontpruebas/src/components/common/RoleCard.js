@@ -1,5 +1,4 @@
 import React from 'react';
-import { Link } from 'react-router-dom';
 import {
   Paper,
   Box,
@@ -68,7 +67,7 @@ const RoleCard = ({ role, onEditClick, onDeleteClick }) => {
           <Box>
             <IconButton
               color="primary"
-              onClick={() => onEditClick(role.id)}
+              onClick={() => onEditClick(role)} // Llama a onEditClick con el rol
             >
               <EditIcon />
             </IconButton>

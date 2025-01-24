@@ -1,5 +1,4 @@
 import React from 'react';
-import { Link } from 'react-router-dom';
 import {
   Card,
   CardContent,
@@ -14,7 +13,7 @@ import EditIcon from '@mui/icons-material/Edit';
 import DeleteIcon from '@mui/icons-material/Delete';
 import { format } from 'date-fns';
 
-const UserCard = ({ usuario, roles, onDeleteClick }) => {
+const UserCard = ({ usuario, roles, onDeleteClick, onEditClick }) => {
   const getRoleName = (id_rol) => {
     const rol = roles.find((role) => role.id === id_rol);
     return rol ? rol.nombre : 'Sin rol asignado';
@@ -68,7 +67,7 @@ const UserCard = ({ usuario, roles, onDeleteClick }) => {
         </Typography>
       </CardContent>
       <CardActions sx={{ justifyContent: 'flex-end' }}>
-        <IconButton component={Link} to={`/usuarios/editar/${usuario.id}`} color="primary">
+        <IconButton color="primary" onClick={() => onEditClick(usuario)}>
           <EditIcon />
         </IconButton>
         <IconButton color="secondary" onClick={() => onDeleteClick(usuario.id)}>

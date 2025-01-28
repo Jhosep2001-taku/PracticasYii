@@ -15,7 +15,7 @@ import UsuarioCrear from './UsuarioCrear';
 import UsuarioEditar from './UsuarioEditar';
 import { getUsuarios, createUsuario, updateUsuario, deleteUsuario } from '../../api/usuarios';
 import { getRoles } from '../../api/roles';
-import ErrorPopup from '../common/ErrorPopup'; // Importa el componente ErrorPopup
+import ErrorPopup from '../common/ErrorPopup';  
 
 const UsuarioList = () => {
   const [usuarios, setUsuarios] = useState([]);
@@ -143,7 +143,7 @@ const UsuarioList = () => {
       )}
 
       <Modal
-        key={modal.type === 'create' ? 'create' : 'edit'} // Forzar reinicio del modal
+        key={modal.type === 'create' ? 'create' : 'edit'} 
         open={modal.open}
         onClose={handleModalClose}
         title={modal.type === 'create' ? 'Crear Usuario' : 'Editar Usuario'}

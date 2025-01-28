@@ -19,7 +19,7 @@ const RolEditar = ({ rol: initialRol, onSubmit }) => {
       <h2>Editar Rol</h2>
       {error && <p style={{ color: 'red' }}>{error}</p>}
       <RolForm 
-        rol={initialRol}  // Se pasa el rol inicial para editar
+        rol={initialRol}   
         onSubmit={handleSubmit}
         buttonText="Guardar Cambios"
       />

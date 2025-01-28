@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { getRolById, deleteRol } from '../../api/roles'; // Importamos las funciones para obtener y eliminar roles
+import { getRolById, deleteRol } from '../../api/roles';  
 
 const RolEliminar = () => {
     const [rol, setRol] = useState(null);
@@ -28,7 +28,7 @@ const RolEliminar = () => {
     const handleEliminar = async () => {
         try {
             await deleteRol(id);
-            navigate('/roles'); // Redirigimos al listado de roles después de eliminar
+            navigate('/roles');  
         } catch (error) {
             console.error('Error al eliminar el rol:', error);
             setError('Hubo un problema al eliminar el rol.');

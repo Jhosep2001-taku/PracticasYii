@@ -39,6 +39,14 @@ export const createUsuario = async (usuarioData) => {
 
 export const updateUsuario = async (id, usuario) => {
   try {
+   
+    if (!usuario.password) {
+      const { password, ...usuarioSinPassword } = usuario;
+      const response = await apiClient.put(`/usuarios/${id}`, usuarioSinPassword);
+      return response.data;
+    }
+    
+   
     const response = await apiClient.put(`/usuarios/${id}`, usuario);
     return response.data;
   } catch (error) {

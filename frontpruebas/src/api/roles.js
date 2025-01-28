@@ -7,7 +7,6 @@ const apiClient = axios.create({
   },
 });
 
-// Obtener todos los roles
 export const getRoles = async () => {
   try {
     const response = await apiClient.get('/roles');
@@ -20,7 +19,7 @@ export const getRoles = async () => {
 
 // Obtener un rol por su ID
 export const getRolById = async (id) => {
-  try {
+  try { 
     const response = await apiClient.get(`/roles/${id}`);
     return response.data;
   } catch (error) {

@@ -9,7 +9,7 @@ const App = () => {
     return (
         <Router>
             <CssBaseline />
-            {/* AppBar sin Container para que ocupe todo el ancho */}
+            
             <AppBar
                 position="static"
                 sx={{
@@ -17,7 +17,7 @@ const App = () => {
                     boxShadow: '0 3px 5px 2px rgba(33, 150, 243, .3)',
                 }}
             >
-                <Toolbar sx={{ paddingLeft: '5%', paddingRight: '5%' }}> {/* Usamos porcentajes para el padding */}
+                <Toolbar sx={{ paddingLeft: '5%', paddingRight: '5%' }}> 
                     {/* Logo */}
                     <Box
                         component="img"

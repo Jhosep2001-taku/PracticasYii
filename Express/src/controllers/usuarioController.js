@@ -42,6 +42,7 @@ const actualizarUsuario = async (req, res) => {
   try {
     const id = parseInt(req.params.id);
     const { nombre, email, password, id_rol } = req.body;
+
     const usuarioActualizado = await usuarioModel.actualizarUsuario(id, nombre, email, password, id_rol);
 
     if (usuarioActualizado) {
@@ -50,6 +51,7 @@ const actualizarUsuario = async (req, res) => {
       res.status(404).json({ mensaje: 'Usuario no encontrado' });
     }
   } catch (error) {
+    console.error('Error al actualizar usuario:', error);
     res.status(500).json({ mensaje: 'Error al actualizar usuario' });
   }
 };

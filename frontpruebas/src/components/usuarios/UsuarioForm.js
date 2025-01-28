@@ -47,8 +47,8 @@ const UsuarioForm = ({ usuario: initialUsuario, roles, onSubmit, isEditing }) =>
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    const dataToSubmit = isEditing && !formData.password
-      ? { ...formData, password: undefined }
+    const dataToSubmit = isEditing
+      ? { ...formData, password: formData.password || undefined } 
       : formData;
     onSubmit(dataToSubmit);
   };

@@ -59,16 +59,36 @@ const crearUsuario = async (nombre, email, password, id_rol) => {
 // Actualizar un usuario por ID
 const actualizarUsuario = async (id, nombre, email, password, id_rol) => {
   try {
-    const result = await pool.query(
-      'UPDATE public.usuarios SET nombre = $1, email = $2, password = $3, id_rol = $4 WHERE id = $5 RETURNING *',
-      [nombre, email, password, id_rol, id]
-    );
+    let query;
+    let params;
+
+    if (password) {
+      // Si se proporciona password, actualizar todos los campos
+      query = `
+        UPDATE public.usuarios 
+        SET nombre = $1, email = $2, password = $3, id_rol = $4 
+        WHERE id = $5 
+        RETURNING *
+      `;
+      params = [nombre, email, password, id_rol, id];
+    } else {
+      // Si no se proporciona password, actualizar todo excepto el password
+      query = `
+        UPDATE public.usuarios 
+        SET nombre = $1, email = $2, id_rol = $3 
+        WHERE id = $4 
+        RETURNING *
+      `;
+      params = [nombre, email, id_rol, id];
+    }
+
+    const result = await pool.query(query, params);
+
     if (result.rows[0]) {
-      const usuario = {
+      return {
         ...result.rows[0],
         fecha_creacion: formatearFecha(result.rows[0].fecha_creacion),
       };
-      return usuario;
     }
     return null;
   } catch (error) {

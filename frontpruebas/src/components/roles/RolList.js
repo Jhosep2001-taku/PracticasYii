@@ -14,6 +14,7 @@ import RoleCard from '../common/RoleCard';
 import Modal from '../common/Modal'; 
 import RolCrear from './RolCrear';
 import RolEditar from './RolEditar'; 
+import ErrorPopup from '../common/ErrorPopup'; // Importa el componente ErrorPopup
 
 const RolList = () => {
   const [roles, setRoles] = useState([]);
@@ -89,15 +90,11 @@ const RolList = () => {
   const handleFormSubmit = async (rolData) => {
     try {
       if (modalType === 'create') {
-       
         const nuevoRol = await createRol(rolData); 
-       
         const rolesData = await getRoles();
         setRoles(rolesData);
       } else if (modalType === 'edit') {
- 
         await updateRol(selectedRole.id, rolData); 
-        
         const rolesData = await getRoles();
         setRoles(rolesData);
       }
@@ -113,15 +110,6 @@ const RolList = () => {
       <Box display="flex" justifyContent="center" alignItems="center" minHeight="200px">
         <CircularProgress />
       </Box>
-    );
-  }
-
- 
-  if (error) {
-    return (
-      <Typography variant="h6" color="error" align="center">
-        {error}
-      </Typography>
     );
   }
 
@@ -177,6 +165,9 @@ const RolList = () => {
         title="Eliminar Rol"
         description={`¿Estás seguro de que deseas eliminar el rol "${selectedRole?.nombre}"? Esta acción no se puede deshacer.`}
       />
+
+      {/* Integración del ErrorPopup */}
+      <ErrorPopup message={error} onClose={() => setError(null)} />
     </Container>
   );
 };

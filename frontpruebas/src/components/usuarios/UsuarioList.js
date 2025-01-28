@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import {
   Container,
   Typography,
@@ -15,6 +15,7 @@ import UsuarioCrear from './UsuarioCrear';
 import UsuarioEditar from './UsuarioEditar';
 import { getUsuarios, createUsuario, updateUsuario, deleteUsuario } from '../../api/usuarios';
 import { getRoles } from '../../api/roles';
+import ErrorPopup from '../common/ErrorPopup'; // Importa el componente ErrorPopup
 
 const UsuarioList = () => {
   const [usuarios, setUsuarios] = useState([]);
@@ -23,113 +24,88 @@ const UsuarioList = () => {
   const [loading, setLoading] = useState(true);
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [selectedUsuarioId, setSelectedUsuarioId] = useState(null);
-  const [modalOpen, setModalOpen] = useState(false);
-  const [modalType, setModalType] = useState(null);
-  const [selectedUsuario, setSelectedUsuario] = useState(null);
+  const [modal, setModal] = useState({ open: false, type: null, usuario: null });
 
-  useEffect(() => {
-    const fetchData = async () => {
-      try {
-        const usuariosData = await getUsuarios();
-        const rolesData = await getRoles();
-        setUsuarios(usuariosData);
-        setRoles(rolesData);
-      } catch (error) {
-        console.error('Error al obtener los usuarios o roles:', error);
-        setError('No se pudieron cargar los usuarios o roles. Por favor, intenta de nuevo más tarde.');
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchData();
+  // Función para cargar los datos iniciales
+  const fetchData = useCallback(async () => {
+    try {
+      const [usuariosData, rolesData] = await Promise.all([getUsuarios(), getRoles()]);
+      setUsuarios(usuariosData);
+      setRoles(rolesData);
+    } catch (error) {
+      console.error('Error al obtener los usuarios o roles:', error);
+      setError('No se pudieron cargar los usuarios o roles. Por favor, intenta de nuevo más tarde.');
+    } finally {
+      setLoading(false);
+    }
   }, []);
 
+  useEffect(() => {
+    fetchData();
+  }, [fetchData]);
+
+  // Manejo de la eliminación de usuarios
   const handleDeleteClick = (id) => {
     setSelectedUsuarioId(id);
     setDeleteDialogOpen(true);
   };
 
-  const handleDeleteConfirm = async () => {
+  const handleDeleteConfirm = useCallback(async () => {
     try {
       await deleteUsuario(selectedUsuarioId);
-      setUsuarios(usuarios.filter((usuario) => usuario.id !== selectedUsuarioId));
+      setUsuarios((prevUsuarios) => prevUsuarios.filter((usuario) => usuario.id !== selectedUsuarioId));
       setDeleteDialogOpen(false);
     } catch (error) {
       console.error('Error al eliminar el usuario:', error);
       setError('Hubo un problema al eliminar el usuario.');
     }
-  };
+  }, [selectedUsuarioId]);
 
   const handleDeleteCancel = () => {
     setDeleteDialogOpen(false);
     setSelectedUsuarioId(null);
   };
 
+  // Manejo del modal para crear/editar usuarios
   const handleCreateClick = () => {
-    setModalType('create');
-    setSelectedUsuario(null);
-    setModalOpen(true);
-  };
+    setModal({ open: true, type: 'create', usuario: null }); 
+  };  
 
   const handleEditClick = (usuario) => {
-    setModalType('edit');
-    setSelectedUsuario(usuario);
-    setModalOpen(true);
+    setModal({ open: true, type: 'edit', usuario });
   };
 
   const handleModalClose = () => {
-    setModalOpen(false);
-    setSelectedUsuario(null);
+    setModal({ open: false, type: null, usuario: null }); 
   };
 
-  const handleFormSubmit = async (usuarioData) => {
+  // Manejo del envío del formulario
+  const handleFormSubmit = useCallback(async (usuarioData) => {
     try {
-      if (modalType === 'create') {
+      if (modal.type === 'create') {
         const nuevoUsuario = await createUsuario(usuarioData);
-        setUsuarios([...usuarios, nuevoUsuario]); // Agregar el nuevo usuario al estado
-      } else if (modalType === 'edit') {
-        const usuarioActualizado = await updateUsuario(selectedUsuario.id, usuarioData);
-        setUsuarios(
-          usuarios.map((usuario) =>
+        setUsuarios((prevUsuarios) => [...prevUsuarios, nuevoUsuario]);
+      } else if (modal.type === 'edit') {
+        const usuarioActualizado = await updateUsuario(modal.usuario.id, usuarioData);
+        setUsuarios((prevUsuarios) =>
+          prevUsuarios.map((usuario) =>
             usuario.id === usuarioActualizado.id ? usuarioActualizado : usuario
           )
-        ); // Actualizar el usuario en el estado
+        );
       }
-      setModalOpen(false); // Cerrar el modal después de guardar
+      setModal({ open: false, type: null, usuario: null });
     } catch (error) {
       console.error('Error al guardar el usuario:', error);
-      if (error.response && error.response.data) {
-        const { data } = error.response;
-        if (data.details && Array.isArray(data.details)) {
-          const errorMessages = data.details.map(
-            (detail) => `${detail.field}: ${detail.message}`
-          );
-          setError(errorMessages.join(', '));
-        } else if (data.message) {
-          setError(data.message);
-        } else {
-          setError('Hubo un problema al guardar el usuario.');
-        }
-      } else {
-        setError('Hubo un problema al guardar el usuario.');
-      }
+      setError('Hubo un problema al guardar el usuario.');
     }
-  };
+  }, [modal.type, modal.usuario]);
 
+  // Renderizado condicional
   if (loading) {
     return (
       <Box display="flex" justifyContent="center" alignItems="center" minHeight="200px">
         <CircularProgress />
       </Box>
-    );
-  }
-
-  if (error) {
-    return (
-      <Typography variant="h6" color="error" align="center">
-        {error}
-      </Typography>
     );
   }
 
@@ -167,14 +143,15 @@ const UsuarioList = () => {
       )}
 
       <Modal
-        open={modalOpen}
+        key={modal.type === 'create' ? 'create' : 'edit'} // Forzar reinicio del modal
+        open={modal.open}
         onClose={handleModalClose}
-        title={modalType === 'create' ? 'Crear Usuario' : 'Editar Usuario'}
+        title={modal.type === 'create' ? 'Crear Usuario' : 'Editar Usuario'}
       >
-        {modalType === 'create' ? (
+        {modal.type === 'create' ? (
           <UsuarioCrear roles={roles} onSubmit={handleFormSubmit} />
         ) : (
-          <UsuarioEditar usuario={selectedUsuario} roles={roles} onSubmit={handleFormSubmit} />
+          <UsuarioEditar usuario={modal.usuario} roles={roles} onSubmit={handleFormSubmit} />
         )}
       </Modal>
 
@@ -185,8 +162,11 @@ const UsuarioList = () => {
         title="Eliminar Usuario"
         description="¿Estás seguro de que deseas eliminar este usuario? Esta acción no se puede deshacer."
       />
+
+      {/* Integración del ErrorPopup */}
+      <ErrorPopup message={error} onClose={() => setError(null)} />
     </Container>
   );
 };
 
-export default UsuarioList;
+export default React.memo(UsuarioList);

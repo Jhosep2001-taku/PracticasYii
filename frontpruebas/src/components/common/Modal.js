@@ -10,7 +10,7 @@ import {
 const Modal = ({ open, onClose, title, children, onConfirm, confirmText }) => {
   return (
     <Dialog open={open} onClose={onClose} maxWidth="sm" fullWidth>
-      <DialogTitle>{title}</DialogTitle>
+      
       <DialogContent>{children}</DialogContent>
       <DialogActions>
         <Button onClick={onClose} color="secondary">

@@ -32,6 +32,14 @@ const UserCard = ({ usuario, roles, onDeleteClick, onEditClick }) => {
       }}
     >
       <CardContent>
+      <Box display="flex" justifyContent="flex-end">
+        <Chip
+          label={getRoleName(usuario.id_rol)}
+          color="primary"
+          size="small"
+          sx={{ fontWeight: 'bold' }}
+        />
+      </Box>
         <Box display="flex" alignItems="center" marginBottom="10px">
           <Avatar
             sx={{
@@ -46,20 +54,12 @@ const UserCard = ({ usuario, roles, onDeleteClick, onEditClick }) => {
           <Typography variant="h6" component="div">
             {usuario.nombre}
           </Typography>
+          
         </Box>
 
         <Typography variant="body2" color="text.secondary" gutterBottom>
           <strong>Email:</strong> {usuario.email}
         </Typography>
-
-        <Box marginBottom="10px">
-          <Chip
-            label={getRoleName(usuario.id_rol)}
-            color="primary"
-            size="small"
-            sx={{ fontWeight: 'bold' }}
-          />
-        </Box>
 
         <Typography variant="body2" color="text.secondary">
           <strong>Fecha de Creación:</strong>{' '}

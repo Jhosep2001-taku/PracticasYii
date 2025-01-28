@@ -1,13 +1,12 @@
 import React from 'react';
 import {
   Dialog,
-  DialogTitle,
   DialogContent,
   DialogActions,
   Button,
 } from '@mui/material';
 
-const Modal = ({ open, onClose, title, children, onConfirm, confirmText }) => {
+const Modal = ({ open, onClose, children }) => {
   return (
     <Dialog open={open} onClose={onClose} maxWidth="sm" fullWidth>
       

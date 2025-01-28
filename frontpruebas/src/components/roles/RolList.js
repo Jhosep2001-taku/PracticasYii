@@ -41,12 +41,11 @@ const RolList = () => {
     fetchData();
   }, []);
 
-  // Manejar la creación de un rol
+  // Manejo del modal para crear/editar usuarios
   const handleCreateClick = () => {
-    setModal({ open: true, type: 'create', role: null });
-  };
+    setModal({ open: true, type: 'create', usuario: null }); 
+  };  
 
-  // Manejar la edición de un rol
   const handleEditClick = (role) => {
     setModal({ open: true, type: 'edit', role });
   };

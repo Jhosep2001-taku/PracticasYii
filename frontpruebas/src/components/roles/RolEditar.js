@@ -1,29 +1,17 @@
-import React, { useState, useEffect } from 'react';
-import RolForm from './RolForm';  // Importa el formulario reutilizable
+import React, { useEffect, useState } from 'react';
+import RolForm from './RolForm';
 
 const RolEditar = ({ rol: initialRol, onSubmit }) => {
-  const [error, setError] = useState(null);
+  const [rol, setRol] = useState(initialRol);
 
   useEffect(() => {
     if (initialRol) {
-      // Ya se manejan los valores iniciales en RolForm
+      setRol(initialRol);
     }
   }, [initialRol]);
 
-  const handleSubmit = (rolData) => {
-    onSubmit(rolData); // Pasa el objeto rolData
-  };
-
   return (
-    <div>
-      <h2>Editar Rol</h2>
-      {error && <p style={{ color: 'red' }}>{error}</p>}
-      <RolForm 
-        rol={initialRol}   
-        onSubmit={handleSubmit}
-        buttonText="Guardar Cambios"
-      />
-    </div>
+    <RolForm rol={rol} onSubmit={onSubmit} isEditing={true} />
   );
 };
 
